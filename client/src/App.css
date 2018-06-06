@@ -1,0 +1,16 @@
+.table-container {
+    width: 50% !important;
+}
+
+.title-people-item-list {
+    font-weight: bold;
+    padding: 0px;
+    border: 1px solid lightgray;
+    background-color: #f2f2f2;
+}
+
+.text-people-item-list {
+    color: green;
+    padding: 0px;
+    border: 1px solid lightgray;
+}
