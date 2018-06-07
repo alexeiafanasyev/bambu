@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {Container, Row, Col} from 'reactstrap';
 
-
 class VehiclesList extends Component {
     render() {
         const vehiclesItems = this.props.vehiclesTitle.map((currElement, index) =>
