@@ -37,20 +37,30 @@ app.get('/api/users', (req, res) => {
 });
 
 app.post('/api/users', (req, res) => {
-    const user = new UserModel(req.body);
-    user.save(err => {
-        if (!err) {
-            return res.send({status: 'OK', user: user})
-        } else {
+    UserModel.findOne({name: req.body.name}, (err, document) => {
+        if(err) {
             res.statusCode = 500;
-            res.send({error: "Error"})
+            return res.send({error: "Server error"})
+        }
+        if(document){
+            res.statusCode = 404;
+            return res.send({error: 'User already exist'})
+        } else {
+            const user = new UserModel(req.body);
+            user.save(err => {
+                if (!err) {
+                    return res.send({status: 'OK', user: user})
+                } else {
+                    res.statusCode = 500;
+                    return res.send({error: "Error"})
+                }
+            });
         }
     });
-    return res.send("test");
 });
 
-app.post('/api/user/getstatus/:id', (req, res) => {
-
+app.post('/api/user/setstatus/:id', (req, res) => {
+    return console.log("Res: ", req.body.answers);
 });
 
 app.listen(port, () => {
