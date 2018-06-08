@@ -23,14 +23,9 @@ mongoose.connect(dbConfig.url)
     process.exit();
 });
 
-// Add the questions
-
-// Add the answers
-
 app.get('/', (req, res) => {
     res.send('Go to /api/users to see users list');
 });
-
 
 // Get all Users
 app.get('/api/users', (req, res) => {
@@ -68,6 +63,7 @@ app.post('/api/users', (req, res) => {
     });
 });
 
+// get all questions
 app.get('/api/questions', (req, res) => {
     return QuestionModel.find((err, questions) => {
         if (!err) {
@@ -79,6 +75,7 @@ app.get('/api/questions', (req, res) => {
     })
 });
 
+// Add new question
 app.post('/api/questions', (req, res) => {
     QuestionModel.findOne({title: req.body.title}, (err, document) => {
         if (err) {
@@ -99,6 +96,44 @@ app.post('/api/questions', (req, res) => {
                 }
             });
         }
+    });
+});
+
+// Get all Answers
+app.get('/api/answers', (req, res) => {
+    return AnswerModel.find((err, answers) => {
+        if (!err) {
+            return res.send(answers)
+        } else {
+            res.statusCode = 500;
+            return res.send({error: "Error"});
+        }
+    })
+});
+
+// Add new Answer
+app.post('/api/answers', (req, res) => {
+    const answers = req.body;
+    answers.forEach(item => {
+        AnswerModel.findOne({text: item.text}, (err, document) => {
+            if (err) {
+                return res.status(500).send("Server error", err);
+            }
+            if (document) {
+                res.statusCode = 404;
+                return res.send({error: 'Answers already exist'})
+            } else {
+                const answer = new AnswerModel(item);
+                answer.save(err => {
+                    if (!err) {
+                        return res.send({status: 'OK', answer: answer})
+                    } else {
+                        res.statusCode = 500;
+                        return res.send({status: 500, error: err})
+                    }
+                });
+            }
+        });
     });
 });
 
