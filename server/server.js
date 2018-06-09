@@ -138,9 +138,68 @@ app.post('/api/answers', (req, res) => {
 });
 
 app.post('/api/user/setstatus/:id', (req, res) => {
-    return console.log("Res: ", req.body.answers);
+    let scoreList = [];
+    UserModel.findOne({_id: req.params.id}, (err, user) => {
+        if (err) {
+            res.statusCode = 500;
+            return res.send({error: "Server error"})
+        }
+        if (!user) {
+            res.statusCode = 404;
+            return res.send({error: 'User not found'})
+        } else {
+            let scoreList = [];
+            let questionsIds = req.body.map(item => item.question);
+            QuestionModel
+                .find({_id: {$in: questionsIds}}, (err, question) => {
+                })
+                .populate({
+                    path: 'answers'
+                })
+                .exec()
+                .then(questions => {
+                    req.body.forEach(item => {
+                        questions.forEach(question => {
+                            // console.log("Item: ", item);
+                            // console.log("Question: ", question);
+                            if (question._id == item.question) {
+                                let answers = question.answers;
+                                let req_answer = item.answer;
+                                // console.log("Answers: ", answers);
+                                // console.log("REQ Answer: ", req_answer);
+                                answers.forEach(answer => {
+                                   if(answer.text == req_answer){
+                                       scoreList.push(answer.score)
+                                   }
+                                });
+                            }
+                        })
+                    });
+                })
+                .then(res => {
+                    let totalScore = 0;
+                    scoreList.forEach(item => {
+                        totalScore = totalScore + Number(item);
+                    });
+                    let userType = '';
+                    if(totalScore >= 8) userType = 'A';
+                    else if(totalScore >= 6) userType = 'B';
+                    else if(totalScore >= 4) userType = 'C';
+                    else if(totalScore >= 2) userType = 'D';
+                    UserModel.updateOne({ type: userType}, (err) => {
+                        if(err){
+                            console.log("User type update error");
+                        } else {
+                            console.log("User type update successfully");
+                        }
+                    })
+                })
+                .catch(err => res.status(500));
+        }
+    });
+    return res.send({status: 'OK'})
 });
 
 app.listen(port, () => {
-    console.log('We are live on ' + port);
+    console.log('Server running on' + port);
 });
