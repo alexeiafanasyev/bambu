@@ -137,6 +137,18 @@ app.post('/api/answers', (req, res) => {
     });
 });
 
+// Get all Answers
+app.get('/api/user/getstatus/:id', (req, res) => {
+    return UserModel.findOne({_id: req.params.id}, (err, user) => {
+        if (!err) {
+            return res.send(user.type)
+        } else {
+            res.statusCode = 500;
+            return res.send({error: "Error"});
+        }
+    })
+});
+
 app.post('/api/user/setstatus/:id', (req, res) => {
     let scoreList = [];
     UserModel.findOne({_id: req.params.id}, (err, user) => {
